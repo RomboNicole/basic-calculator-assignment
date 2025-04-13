@@ -15,8 +15,7 @@ my_list.extend([50,60,70])
 print(my_list)
 del my_list[7]
 print (my_list)
-my_list.sort()
-print (my_list[3])
+print (my_list)
 
 
 
