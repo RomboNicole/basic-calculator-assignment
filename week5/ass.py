@@ -55,3 +55,5 @@ vehicles = [Car(), Plane(), Boat()]
 
 for v in vehicles:
     v.move()
+
+    
