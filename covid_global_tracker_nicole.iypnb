@@ -1,0 +1,93 @@
+# ======================================================
+# COVID-19 Global Data Tracker - Analysis by Mary
+# This notebook explores COVID-19 trends using real data
+# ======================================================
+
+# 📚 Importing the required packages
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Setup visualization defaults
+sns.set(style="darkgrid")
+plt.rcParams["figure.figsize"] = (14, 7)
+
+# ---------------------------------------------
+# 1. Load the dataset
+# ---------------------------------------------
+data = pd.read_csv("owid-covid-data.csv")
+
+# Let's look at what's inside
+print("Dataset columns:")
+print(data.columns)
+
+print("\nSample rows:")
+print(data.head(3))
+
+# ---------------------------------------------
+# 2. Initial cleaning & filtering
+# ---------------------------------------------
+# We'll focus on 3 countries that show different patterns
+focus_countries = ["Kenya", "India", "United States"]
+filtered_data = data[data["location"].isin(focus_countries)]
+
+# Convert 'date' column to datetime format
+filtered_data["date"] = pd.to_datetime(filtered_data["date"])
+
+# Remove rows with missing totals
+filtered_data.dropna(subset=["total_cases", "total_deaths", "total_vaccinations"], inplace=True)
+
+# Fill remaining missing values (forward fill for continuity)
+filtered_data.fillna(method="ffill", inplace=True)
+
+# ---------------------------------------------
+# 3. Visualizing total cases over time
+# ---------------------------------------------
+for country in focus_countries:
+    country_data = filtered_data[filtered_data["location"] == country]
+    plt.plot(country_data["date"], country_data["total_cases"], label=country, linestyle="--")
+
+plt.title("📈 Total COVID-19 Cases Over Time")
+plt.xlabel("Date")
+plt.ylabel("Total Cases Reported")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# ---------------------------------------------
+# 4. Visualizing total deaths over time
+# ---------------------------------------------
+for country in focus_countries:
+    subset = filtered_data[filtered_data["location"] == country]
+    plt.plot(subset["date"], subset["total_deaths"], label=country)
+
+plt.title("💀 Total Deaths Reported Over Time")
+plt.xlabel("Date")
+plt.ylabel("Total Deaths")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# ---------------------------------------------
+# 5. Vaccination Progress
+# ---------------------------------------------
+for country in focus_countries:
+    subset = filtered_data[filtered_data["location"] == country]
+    plt.plot(subset["date"], subset["total_vaccinations"], label=country)
+
+plt.title("💉 Cumulative Vaccinations Over Time")
+plt.xlabel("Date")
+plt.ylabel("Total Vaccinations")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# ---------------------------------------------
+# 6. Calculating Death Rate
+# ---------------------------------------------
+filtered_data["death_rate"] = filtered_data["total_deaths"] / filtered_data["total_cases"]
+
+# Preview a few rows of the final cleaned data
+print(filtered_data[["location", "date", "total_cases", "total_deaths", "death_rate"]].tail())
+
+
